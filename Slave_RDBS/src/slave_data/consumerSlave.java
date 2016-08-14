@@ -77,7 +77,7 @@ public class consumerSlave {
             final String text = textMessage.getText();
             //String[] tokens = text.split(",");
             //int servidor = Integer.parseInt(tokens[0]);            
-            if(servidor == numServer && tipoPeticion == 1){
+            if(servidor == numServer && tipoPeticion >= 1){
                 valorVerdad = 1;
             }
             //System.out.println("Confirmando text: "+text+" - total: "+totalConsumedMessages);
@@ -104,7 +104,7 @@ public class consumerSlave {
                             int id = rs.getInt("ID_Topico");
                             String nombre=rs.getString("nombre");                                                      
                             topicos=topicos+nombre+";";
-                            System.out.println(id+":"+nombre);
+                            //System.out.println(id+":"+nombre);
                         }  
                         producerSlave ps = new producerSlave();
                         ps.sendMessages(DESTINATION_QUEUE,topicos,propietario,numServer, 0); //Es respuesta  
@@ -113,6 +113,9 @@ public class consumerSlave {
                         System.err.println("Got an exception! ");
                         System.err.println(e.getMessage());
                     }
+                    break;
+                case 2:
+                    System.out.println("Crear Cola");
                     break;
                 default:
                     System.out.println("No es peticion, es respuesta");
