@@ -13,7 +13,7 @@ import javax.jms.*;
  */
 public class mainSlave {
     
-    public static void main(String[] args)  throws JMSException {
+    public static void main(String[] args)  throws JMSException, InterruptedException {
         final consumerSlave waitPlayer = new consumerSlave();
         waitPlayer.processMessages();
     }

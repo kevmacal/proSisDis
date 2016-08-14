@@ -18,7 +18,7 @@ import java.sql.*;
  * @author marlon
  */
 public class consumerSlave {
-    private static final String URL = "tcp://192.168.0.5:61616"; 
+    private static final String URL = "tcp://192.168.1.3:61616"; 
     private static final String USER = ActiveMQConnection.DEFAULT_USER; 
     private static final String PASSWORD = ActiveMQConnection.DEFAULT_PASSWORD; 
     private static final String DESTINATION_QUEUE = "MasterSlave.Queue"; 
@@ -28,7 +28,7 @@ public class consumerSlave {
     private static final String CONN_STRING="jdbc:mysql://localhost:3306/prueba";
     private int totalConsumedMessages = 0; 
     private final int numServer = 1; //Este numero se asigna manualmente
-    public void processMessages() throws JMSException {
+    public void processMessages() throws JMSException, InterruptedException {
  
         final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(USER, PASSWORD, URL);
         final javax.jms.Connection connection = connectionFactory.createConnection();
@@ -36,31 +36,35 @@ public class consumerSlave {
         connection.start();
  
         final Session session = connection.createSession(TRANSACTED_SESSION, Session.AUTO_ACKNOWLEDGE);
-        final Destination destination = session.createQueue(DESTINATION_QUEUE);
-        final MessageConsumer consumer = session.createConsumer(destination);
+        //final Destination destination = session.createQueue(DESTINATION_QUEUE);
+        
  
-        processMessagesInQueue(consumer, session);
- 
-        consumer.close();
+        processMessagesInQueue(session);
+        
         session.close();
         connection.close();
     }
-    private void processMessagesInQueue(MessageConsumer consumer, Session session) throws JMSException {
+    private void processMessagesInQueue(Session session) throws JMSException, InterruptedException {
         Message message;
         int i=0;
         QueueBrowser queuePeek;
-        while (i<20) {
-            System.out.println(i);
+        MessageConsumer consumer;
+        while (i<1000) {
+            Thread.sleep(70);
+            //System.out.println(i);
             queuePeek = session.createBrowser(session.createQueue(DESTINATION_QUEUE));
             Enumeration<?> messagesInQueue = queuePeek.getEnumeration();
             Message peek = (Message) messagesInQueue.nextElement();
             if (peek!=null){
                 if (confirmMessage(peek)==1){
+                    consumer= session.createConsumer(session.createQueue(DESTINATION_QUEUE));
                     if((message = consumer.receive()) != null){
                         proccessMessage(message);
+                        consumer.close();
                     }
                 }
             }
+            queuePeek.close();
             i++;
         }
     }
@@ -76,7 +80,7 @@ public class consumerSlave {
             if(servidor == numServer && tipoPeticion == 1){
                 valorVerdad = 1;
             }
-            System.out.println("Confirmando text: "+text+" - total: "+totalConsumedMessages);
+            //System.out.println("Confirmando text: "+text+" - total: "+totalConsumedMessages);
         }
         return valorVerdad;
     }
