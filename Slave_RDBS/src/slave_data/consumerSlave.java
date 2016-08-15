@@ -23,9 +23,9 @@ public class consumerSlave {
     private static final String PASSWORD = ActiveMQConnection.DEFAULT_PASSWORD; 
     private static final String DESTINATION_QUEUE = "MasterSlave.Queue"; 
     private static final boolean TRANSACTED_SESSION = false; 
-    private static final String USERNAME="root";
-    private static final String PASSWORDBD="0984287897";
-    private static final String CONN_STRING="jdbc:mysql://localhost:3306/prueba";
+    //private static final String USERNAME="root";
+    //private static final String PASSWORDBD="0984287897";
+    //private static final String CONN_STRING="jdbc:mysql://localhost:3306/prueba";
     private int totalConsumedMessages = 0; 
     private final int numServer = 1; //Este numero se asigna manualmente
     public void processMessages() throws JMSException, InterruptedException {
@@ -85,7 +85,7 @@ public class consumerSlave {
         return valorVerdad;
     }
     
-    private void proccessMessage(Message message) throws JMSException {
+    private void proccessMessage(Message message) throws JMSException, InterruptedException {
         if (message instanceof TextMessage) {
             final TextMessage textMessage = (TextMessage) message;
             String propietario = textMessage.getStringProperty("cliente");
@@ -96,7 +96,7 @@ public class consumerSlave {
                 case 1:
                     Connection con=null;        
                     try{
-                        con = DriverManager.getConnection(CONN_STRING, USERNAME, PASSWORDBD);
+                        con = DriverManager.getConnection(mainSlave.CONN_STRING, mainSlave.USERNAME, mainSlave.PASSWORDBD);
                         String query = "SELECT * FROM Topico";
                         Statement st=(Statement) con.createStatement();
                         String topicos="";
@@ -122,6 +122,10 @@ public class consumerSlave {
                     String[] topic=queues[1].split("\\.");
                     //System.out.println(topic[1]);
                     ptq.sendMessages(queues[1], "queue;Cola creada", propietario, servidor, 0,topic[1]); //Se envia al cliente en la nueva cola una respuesta de creacion, en espera de que el cliente acepte
+                    Runnable r1=new queueThread(queues[1]);
+                    Thread t1=new Thread(r1);
+                    t1.start();
+                    //t1.join();
                     producerSlave ps=new producerSlave();
                     ps.sendMessages(DESTINATION_QUEUE, "queue;"+mainSlave.SERVER_IP+";"+queues[1], propietario, numServer, 0);
                     break;

@@ -1,6 +1,7 @@
-package manager;
+package slave_data;
 
 
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.JMSException;
@@ -24,11 +25,13 @@ public class queueThread implements Runnable{
         
         @Override
         public void run() {
-            final consumerManager wait = new consumerManager();
+            final consumerSlaveGame wait = new consumerSlaveGame();
             try {
                 wait.processMessages(cola);
-            } catch (InterruptedException | JMSException ex) {
-                Logger.getLogger(mainManager.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JMSException ex) {
+                Logger.getLogger(queueThread.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(queueThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         

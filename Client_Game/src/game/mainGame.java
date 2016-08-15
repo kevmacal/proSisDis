@@ -32,15 +32,19 @@ public class mainGame {
         topicos=new ArrayList<>();
         //System.out.println(topicos.size());
         cmc.processMessages(MASTER_QUEUE, clientName);
-        op=Menu();
-        if(op<topicos.size() && op>=0){
-            topicGame=topicos.get(op).split(";")[0];
-            pc.sendMessages(MASTER_QUEUE, "El usuario acepta un Topico;"+topicos.get(op).split(";")[1]+";"+topicGame, clientName, 0, 2); //Solicitud a master 2 es de aceptacion de cola
+        if(topicos.size()!=0){
+            op=Menu();
+            if(op<topicos.size() && op>=0){
+                topicGame=topicos.get(op).split(";")[0];
+                pc.sendMessages(MASTER_QUEUE, "El usuario acepta un Topico;"+topicos.get(op).split(";")[1]+";"+topicGame, clientName, 0, 2); //Solicitud a master 2 es de aceptacion de cola
+            }
+            cmc.processMessages(MASTER_QUEUE, clientName);
+            consumerSlaveClient csc=new consumerSlaveClient();
+            System.out.println("Empezara el juego con topico: "+topicGame);
+            csc.processMessages(clientName);
+        }else{
+            System.out.println("Hubo un problema en la comunicacion, no se recibieron topicos de preguntas");
         }
-        cmc.processMessages(MASTER_QUEUE, clientName);
-        consumerSlaveClient csc=new consumerSlaveClient();
-        System.out.println("Empezara el juego con topico: "+topicGame);
-        csc.processMessages(clientName);
         //System.out.println(topicQueueIP+";"+topicQueueName);
         //System.out.println(op);
         //System.out.println(topicos.size());        

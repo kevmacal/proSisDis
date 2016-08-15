@@ -43,6 +43,7 @@ public class producerTopicQueue {
         textMessage.setStringProperty("cliente",cliente);
         textMessage.setIntProperty("servidor",server);
         textMessage.setIntProperty("tipoPeticion", peticion); //1 Topicos que tienes, 0 es respuesta
+        producer.setTimeToLive(60000); //Un minuto de vida, es comunicacion directa, el supuesto es que no se caiga
         producer.send(textMessage);
     }
 }

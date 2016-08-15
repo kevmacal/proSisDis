@@ -86,6 +86,8 @@ public class consumerSlaveClient {
     }
     private int proccessMessage(Message message) throws JMSException {
         int valor=0;
+        int i;
+        Scanner input = new Scanner(System.in); 
         producerTopicQueue ptq=new producerTopicQueue();
         if (message instanceof TextMessage) {
             final TextMessage textMessage = (TextMessage) message;
@@ -98,8 +100,7 @@ public class consumerSlaveClient {
                String[] topics=text.split(";");
                //System.out.println(topics[0]);
                if (topics[0].equals("queue")){
-                   int op;
-                   Scanner input = new Scanner(System.in);                   
+                   int op;                                     
                    System.out.println("Conexion Establecida\nEscoger una opcion:");
                    System.out.println("\t1.Puntajes altos");
                    System.out.println("\t2.Iniciar Juego");
@@ -121,10 +122,14 @@ public class consumerSlaveClient {
                            valor=1;
                            break;
                    }
-               }else{
-                   //mainGame.topicQueueIP=topics[1];
-                   //mainGame.topicQueueName=topics[2];
-                   //valor=valor+100;
+               }
+               if (topics[0].equals("hs")){
+                   for(i=1;i<topics.length;i++){
+                       System.out.println(i+".- "+topics[i]);
+                   }
+                   System.out.println("Presionar enter para continuar...");
+                   input.nextLine();
+                   ptq.sendMessages("queue;Continuar", client, servidor, 0, topic);
                }
             }            
             //totalConsumedMessages++;
