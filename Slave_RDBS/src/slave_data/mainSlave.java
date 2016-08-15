@@ -13,6 +13,8 @@ import javax.jms.*;
  */
 public class mainSlave {
     
+    public static final String SERVER_IP="tcp://192.168.1.3:61616";  //Se caambia manualmente para cada servidor
+    
     public static void main(String[] args)  throws JMSException, InterruptedException {
         final consumerSlave waitPlayer = new consumerSlave();
         waitPlayer.processMessages();

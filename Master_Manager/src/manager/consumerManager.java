@@ -113,15 +113,15 @@ public class consumerManager {
                         break;
                 }
             }else{
-                if(texto.split(";")[0].equals("queue;")){
-                    System.out.println("Ya se genera la cola para comunicacion directa");
+                if(texto.split(";")[0].equals("queue")){
+                    //System.out.println("Ya se genera la cola para comunicacion directa");
+                    respuestaColaCreada(cliente, texto, servidor);
                 }else{
                     respuestaTopicos(cliente, texto, servidor);
                 }
             }
-            final String text = textMessage.getText();
             //totalConsumedMessages++;
-            System.out.println(propietario+" = Procesa text: "+text);
+            System.out.println(propietario+" = Procesa text: "+texto);
         }
     }
     private void processMessagesInQueueSlave(Session session) throws JMSException, InterruptedException {
@@ -176,11 +176,15 @@ public class consumerManager {
     private void aceptarTopico(String cliente, String Mensaje) throws JMSException{
         producerManager pm = new producerManager();
         String[] serv_topi=Mensaje.split(";");
-        pm.sendMessages(SLAVE_QUEUE, "queue;"+cliente+serv_topi[2], cliente, Integer.parseInt(serv_topi[1]), 2);
+        pm.sendMessages(SLAVE_QUEUE, "queue;"+cliente+"."+serv_topi[2], cliente, Integer.parseInt(serv_topi[1]), 2);
     }
     
     private void respuestaTopicos(String cliente, String Mensaje,int servidor) throws JMSException{
         producerManager pm = new producerManager();
         pm.sendMessages(CLIENT_QUEUE, "topicsAnswer;" + Mensaje, cliente, servidor, 0);
+    }
+    private void respuestaColaCreada(String cliente, String Mensaje,int servidor) throws JMSException{
+        producerManager pm = new producerManager();
+        pm.sendMessages(CLIENT_QUEUE,Mensaje, cliente, servidor, 0);
     }
 }

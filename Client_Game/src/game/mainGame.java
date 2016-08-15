@@ -16,9 +16,11 @@ public class mainGame {
     private static final String MASTER_QUEUE = "MasterClient.Queue";
     public static ArrayList<String> topicos;
     public static String topicQueueName;
+    public static String topicQueueIP;
     
     public static void main(String[] args)  throws JMSException, InterruptedException {
         int op;
+        String topicGame="No elegido";
         producerClient pc=new producerClient();
         consumerMasterClient cmc=new consumerMasterClient();
         Scanner input = new Scanner(System.in);
@@ -28,12 +30,18 @@ public class mainGame {
         //System.out.println(clientName);
         pc.sendMessages(MASTER_QUEUE, "Usuario Creado, Solicita Topicos", clientName, 0, 1); //Si el servidor va con cero, es para el master (Es del cliente)
         topicos=new ArrayList<>();
-        System.out.println(topicos.size());
+        //System.out.println(topicos.size());
         cmc.processMessages(MASTER_QUEUE, clientName);
         op=Menu();
         if(op<topicos.size() && op>=0){
-            pc.sendMessages(MASTER_QUEUE, "El usuario acepta un Topico;"+topicos.get(op).split(";")[1]+";"+topicos.get(op).split(";")[0], clientName, 0, 2); //Solicitud a master 2 es de aceptacion de cola
+            topicGame=topicos.get(op).split(";")[0];
+            pc.sendMessages(MASTER_QUEUE, "El usuario acepta un Topico;"+topicos.get(op).split(";")[1]+";"+topicGame, clientName, 0, 2); //Solicitud a master 2 es de aceptacion de cola
         }
+        cmc.processMessages(MASTER_QUEUE, clientName);
+        consumerSlaveClient csc=new consumerSlaveClient();
+        System.out.println("Empezara el juego con topico: "+topicGame);
+        csc.processMessages(clientName);
+        //System.out.println(topicQueueIP+";"+topicQueueName);
         //System.out.println(op);
         //System.out.println(topicos.size());        
     }

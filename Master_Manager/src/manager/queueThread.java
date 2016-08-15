@@ -29,7 +29,7 @@ public class queueThread implements Runnable{
             final consumerManager wait = new consumerManager();
             try {
                 wait.processMessages(cola);
-            } catch (JMSException ex) {
+            } catch (InterruptedException | JMSException ex) {
                 Logger.getLogger(mainManager.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

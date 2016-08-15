@@ -90,6 +90,8 @@ public class consumerSlave {
             final TextMessage textMessage = (TextMessage) message;
             String propietario = textMessage.getStringProperty("cliente");
             int peticion=textMessage.getIntProperty("tipoPeticion");
+            int servidor=textMessage.getIntProperty("servidor");
+            final String text = textMessage.getText();
             switch(peticion){
                 case 1:
                     Connection con=null;        
@@ -109,19 +111,24 @@ public class consumerSlave {
                         producerSlave ps = new producerSlave();
                         ps.sendMessages(DESTINATION_QUEUE,topicos,propietario,numServer, 0); //Es respuesta  
                         st.close();            
-                    }catch (Exception e){
+                    }catch (SQLException | JMSException e){
                         System.err.println("Got an exception! ");
                         System.err.println(e.getMessage());
                     }
                     break;
                 case 2:
-                    System.out.println("Crear Cola");
+                    String[] queues=text.split(";");
+                    producerTopicQueue ptq=new producerTopicQueue();
+                    String[] topic=queues[1].split("\\.");
+                    //System.out.println(topic[1]);
+                    ptq.sendMessages(queues[1], "queue;Cola creada", propietario, servidor, 0,topic[1]); //Se envia al cliente en la nueva cola una respuesta de creacion, en espera de que el cliente acepte
+                    producerSlave ps=new producerSlave();
+                    ps.sendMessages(DESTINATION_QUEUE, "queue;"+mainSlave.SERVER_IP+";"+queues[1], propietario, numServer, 0);
                     break;
                 default:
                     System.out.println("No es peticion, es respuesta");
                     break;
-            }
-            final String text = textMessage.getText();
+            }            
             totalConsumedMessages++;
             System.out.println(propietario+" = Procesa text: "+text+" - total: "+totalConsumedMessages);
         }
