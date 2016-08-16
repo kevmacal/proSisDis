@@ -46,7 +46,7 @@ public class producerManager {
         textMessage.setStringProperty("cliente",cliente);
         textMessage.setIntProperty("servidor",server);
         textMessage.setIntProperty("tipoPeticion", peticion); //1 Topicos que tienes, 0 es respuesta
-        producer.setTimeToLive(10000); //10 segundos de vida para evitar que se bloqueen entre si las comunicaciones
+        producer.setTimeToLive(3000); //10 segundos de vida para evitar que se bloqueen entre si las comunicaciones
         producer.send(textMessage);
     }
 }

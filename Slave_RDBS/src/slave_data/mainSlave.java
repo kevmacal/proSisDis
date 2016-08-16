@@ -23,6 +23,7 @@ public class mainSlave {
     
     public static final String SERVER_IP="tcp://192.168.1.3:61616";  //Se cambia manualmente para cada servidor
     public static Map<String, ArrayList<String>> hScores;
+    public static int inUseGlobal = 0;
     /*Configuracion de la base de datos es manual para cada server*/
     protected static final String USERNAME="root";
     protected static final String PASSWORDBD="0984287897";

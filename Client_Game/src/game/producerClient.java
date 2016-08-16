@@ -47,7 +47,7 @@ public class producerClient {
         textMessage.setStringProperty("cliente",cliente);
         textMessage.setIntProperty("servidor",server);
         textMessage.setIntProperty("tipoPeticion", peticion); //1 Topicos que tienes, 0 es respuesta
-        producer.setTimeToLive(10000); //Tiempo de vida 10 segundos, no se espera errores
+        producer.setTimeToLive(3000); //Tiempo de vida 3 segundos, no se espera errores
         producer.send(textMessage);
     }
 }

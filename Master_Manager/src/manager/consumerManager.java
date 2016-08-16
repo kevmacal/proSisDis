@@ -57,7 +57,7 @@ public class consumerManager {
         int i=0;
         QueueBrowser queuePeek;
         MessageConsumer consumer;
-        while (i<1000) {
+        while (i==0) {
             Thread.sleep(70);
             //System.out.println(i);
             queuePeek = session.createBrowser(session.createQueue(colaDest));
@@ -73,7 +73,6 @@ public class consumerManager {
                 }
             }
             queuePeek.close();
-            i++;
         }
     }
     private int confirmMessageClient(Message message) throws JMSException{
@@ -129,7 +128,7 @@ public class consumerManager {
         int i=0;
         QueueBrowser queuePeek;
         MessageConsumer consumer;
-        while (i<1000) {
+        while (i==0) {
             Thread.sleep(70);
             //System.out.println(i);
             queuePeek = session.createBrowser(session.createQueue(colaDest));
@@ -145,7 +144,6 @@ public class consumerManager {
                 }
             }
             queuePeek.close();
-            i++;
         }
     }
     private int confirmMessageSlave(Message message) throws JMSException{

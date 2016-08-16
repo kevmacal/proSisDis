@@ -20,7 +20,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  * @author marlon
  */
 public class producerSlave {
-    private static final String URL = "tcp://192.168.1.3:61616"; 
+    private static final String URL = "tcp://192.168.1.3:61616"; //Productor al master
     private static final String USER = ActiveMQConnection.DEFAULT_USER; 
     private static final String PASSWORD = ActiveMQConnection.DEFAULT_PASSWORD; 
     //private static final String DESTINATION_QUEUE = "MasterSlave.Queue"; 
@@ -49,7 +49,7 @@ public class producerSlave {
         textMessage.setStringProperty("cliente",cliente);
         textMessage.setIntProperty("servidor",server);
         textMessage.setIntProperty("tipoPeticion", peticion); //1 Topicos que tienes, 0 es respuesta
-        producer.setTimeToLive(10000); //10 segundos de vida para evitar que se bloqueen entre si las comunicaciones
+        producer.setTimeToLive(3000); //10 segundos de vida para evitar que se bloqueen entre si las comunicaciones
         producer.send(textMessage);
     }
 }

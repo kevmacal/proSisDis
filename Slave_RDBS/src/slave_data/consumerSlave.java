@@ -18,7 +18,7 @@ import java.sql.*;
  * @author marlon
  */
 public class consumerSlave {
-    private static final String URL = "tcp://192.168.1.3:61616"; 
+    private static final String URL = "tcp://192.168.1.3:61616"; // IP del Master
     private static final String USER = ActiveMQConnection.DEFAULT_USER; 
     private static final String PASSWORD = ActiveMQConnection.DEFAULT_PASSWORD; 
     private static final String DESTINATION_QUEUE = "MasterSlave.Queue"; 
@@ -49,7 +49,7 @@ public class consumerSlave {
         int i=0;
         QueueBrowser queuePeek;
         MessageConsumer consumer;
-        while (i<1000) {
+        while (i==0) {
             Thread.sleep(70);
             //System.out.println(i);
             queuePeek = session.createBrowser(session.createQueue(DESTINATION_QUEUE));
@@ -65,7 +65,6 @@ public class consumerSlave {
                 }
             }
             queuePeek.close();
-            i++;
         }
     }
     private int confirmMessage(Message message) throws JMSException{

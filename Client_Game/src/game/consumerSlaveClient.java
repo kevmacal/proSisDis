@@ -5,6 +5,9 @@
  */
 package game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Scanner;
 import javax.jms.*;
@@ -21,6 +24,9 @@ public class consumerSlaveClient {
     private static final boolean TRANSACTED_SESSION = false;
     private String colaDest;
     private String client;
+    private static int puntaje = 0;
+    threadGame r1;
+    Thread t1;
     public void processMessages(String client) throws JMSException, InterruptedException {
  
         final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(USER, PASSWORD, mainGame.topicQueueIP);
@@ -37,13 +43,15 @@ public class consumerSlaveClient {
         connection.close();
     }
     private void processMessagesInQueue(Session session) throws JMSException, InterruptedException {
-        Message message;
-        int i=0;
+        Message message;        
         int salir=0;
+        int i=0;
         QueueBrowser queuePeek;
         MessageConsumer consumer;
-        /*Se da un minuto de tiempo*/
-        while (i<2000 || salir==0) {
+        while (salir==0) {
+            if(i==1000){
+                i=0;
+            }
             Thread.sleep(30);
             //System.out.println(i);
             queuePeek = session.createBrowser(session.createQueue(colaDest));
@@ -53,12 +61,7 @@ public class consumerSlaveClient {
                 if (confirmMessage(peek)==1){
                     consumer = session.createConsumer(session.createQueue(colaDest));
                     if((message = consumer.receive()) != null){
-                        salir=proccessMessage(message);
-                        if(salir==0){
-                            i=0;
-                        }else{
-                            i=2000;
-                        }
+                        salir=proccessMessage(message);                        
                         consumer.close();
                     }
                 }
@@ -114,22 +117,78 @@ public class consumerSlaveClient {
                            break;
                        case 2:
                            System.out.println("Iniciar Juego");
-                           
-                           ptq.sendMessages("game;2", client, servidor, 1, topic);
+                           r1=new threadGame(client,servidor,topic);
+
+                           t1=new Thread(r1);
+
+                           t1.start();
+
+                           ptq.sendMessages("game;2", client, servidor, 2, topic);
                            break;
                        default:
                            System.out.println("Saliendo del juego, cerrando conexion");
+                           ptq.sendMessages("close;CerrarConexion", client, servidor, 6, topic); //Peticion 6 cerrar la conexion
                            valor=1;
                            break;
                    }
-               }
+               }               
                if (topics[0].equals("hs")){
+                   puntaje=0;
                    for(i=1;i<topics.length;i++){
                        System.out.println(i+".- "+topics[i]);
                    }
                    System.out.println("Presionar enter para continuar...");
                    input.nextLine();
                    ptq.sendMessages("queue;Continuar", client, servidor, 0, topic);
+               }
+               if (topics[0].equals("endGame")){
+                   System.out.println("El tiempo se ha terminado\n\n\tTu puntaje final: "+puntaje+" respuestas correctas");
+                   ptq.sendMessages("game;4;"+puntaje, client, servidor, 4, topic);
+               }
+               if(topics[0].equals("game")){
+                   int answ;
+                   int correct=0;
+                   ArrayList<String> respuestasOrd=new ArrayList<>();
+                   ArrayList<String> respuestas=new ArrayList<>();
+                   System.out.println(topics[1]); //Pregunta
+                   for(i=2;i<topics.length;i++){
+                       respuestasOrd.add(topics[i]);
+                   }
+                   Integer[] arr = new Integer[respuestasOrd.size()];
+                   for (int j = 0; j < arr.length; j++) {
+                       arr[j] = j;
+                   }
+                   Collections.shuffle(Arrays.asList(arr));
+                   answ=1;
+                   for (Integer arr1 : arr) {
+                       respuestas.add(respuestasOrd.get(arr1));
+                       if(arr1==0){
+                           correct=answ;
+                       }
+                       answ++;
+                   }
+                   for(i=0;i<respuestasOrd.size();i++){
+                       System.out.println((i+1)+respuestas.get(i));
+                   }
+                   System.out.println("Seleccionar su respuesta: ");
+                   answ=input.nextInt();
+                   if(answ==correct && r1.getOnTime()==1){
+                       System.out.println("Respuesta correcta");
+                       puntaje++;
+                       ptq.sendMessages("game;3", client, servidor, 3, topic); //Peticion 3 es otra pregunta
+                   }else{
+                       r1.setStop(1);
+                       if(answ!=correct){
+                        System.out.println("La respuesta es incorrecta, gracias por jugar");
+                        System.out.println("La respuesta correcta es: "+respuestasOrd.get(0));
+                        System.out.println("\t\tPuedes intentarlo de nuevo en este topico");                        
+                        ptq.sendMessages("game;4;"+puntaje, client, servidor, 4, topic);
+                       }else{
+                           System.out.println("Respuesta fuera del tiempo, gracias por jugar");
+                           System.out.println("La respuesta correcta es: "+respuestasOrd.get(0));
+                           System.out.println("\t\tPuedes intentarlo de nuevo en este topico");
+                       }
+                   }                   
                }
             }            
             //totalConsumedMessages++;
