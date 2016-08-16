@@ -92,7 +92,7 @@ public class consumerSlaveGame {
         }
         return valorVerdad;
     }
-    private int proccessMessage(Message message) throws JMSException {
+    private int proccessMessage(Message message) throws JMSException, InterruptedException {
         producerTopicQueue ptq=new producerTopicQueue();
         int i;
         int valor=0;
@@ -199,20 +199,22 @@ public class consumerSlaveGame {
                     String[] topics=text.split(";");
                     String tmpProp=propietario;
                     String tmpPunt=topics[2];
-                    if(isUsedGlobal()==0){
-                        concat=concat+"hs;";
-                        for(i=0;i<mainSlave.hScores.get(topic).size();i++){
-                            String puntaje=mainSlave.hScores.get(topic).get(i);
-                            String[] up=puntaje.split("-");
-                            if(Integer.parseInt(tmpPunt)>Integer.parseInt(up[1])){                                
-                                mainSlave.hScores.get(topic).set(i, tmpProp+"-"+tmpPunt);
-                                tmpProp=up[0];
-                                tmpPunt=up[1];
-                            }
-                            concat=concat+mainSlave.hScores.get(topic).get(i)+";";
+                    while(isUsedGlobal()==1){
+                        Thread.sleep(100);
+                    }
+                    concat=concat+"hs;";
+                    for(i=0;i<mainSlave.hScores.get(topic).size();i++){
+                        String puntaje=mainSlave.hScores.get(topic).get(i);
+                        String[] up=puntaje.split("-");
+                        if(Integer.parseInt(tmpPunt)>Integer.parseInt(up[1])){                                
+                            mainSlave.hScores.get(topic).set(i, tmpProp+"-"+tmpPunt);
+                            tmpProp=up[0];
+                            tmpPunt=up[1];
                         }
-                        mainSlave.inUseGlobal=0;
-                    }                    
+                        concat=concat+mainSlave.hScores.get(topic).get(i)+";";
+                    }
+                    mainSlave.inUseGlobal=0;
+                    
                     ptq.sendMessages(queue, concat, propietario, servidor, 0, topic);
                     break;
                 case 5:
